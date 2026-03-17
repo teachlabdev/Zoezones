@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zoe Zones</title>
+    <!-- No external dependencies — fully offline safe -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <button class="present-btn" id="presentBtn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <rect x="2" y="3" width="20" height="14" rx="2"/>
+            <path d="M8 21h8M12 17v4"/>
+        </svg>
+        Present
+    </button>
+
+    <div class="layout" id="layout">
+
+        <!-- ── STUDENT APP ── -->
+        <main class="app-panel" id="appPanel">
+
+            <header class="app-header">
+                <h1 class="wordmark">Zoe<span>Zones</span></h1>
+            </header>
+
+            <!-- ── SCREEN 1: Student Selection ── -->
+            <div id="student-selection" class="screen">
+                <p class="screen-prompt">Who are you?</p>
+                <div id="student-grid" class="student-grid"></div>
+            </div>
+
+            <!-- ── SCREEN 2: Zone Selection ── -->
+            <div id="zone-selection" class="screen hidden">
+                <div class="screen-top-row">
+                    <button class="btn-back" id="back-to-students">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                            <polyline points="15 18 9 12 15 6"/>
+                        </svg>
+                    </button>
+                    <span class="student-chip" id="selected-student-label">Student —</span>
+                </div>
+                <p class="screen-prompt">How are you feeling?</p>
+
+                <div class="zone-grid">
+
+                    <button class="zone-btn" data-zone="blue">
+                        <div class="zone-dot-wrap">
+                            <div class="zone-dot" style="background:#4a8fd4;box-shadow:0 4px 18px rgba(74,143,212,0.3)"></div>
+                        </div>
+                        <span class="zone-name">Blue Zone</span>
+                        <span class="zone-desc">Sad · Tired · Bored</span>
+                    </button>
+
+                    <button class="zone-btn" data-zone="green">
+                        <div class="zone-dot-wrap">
+                            <div class="zone-dot" style="background:#5ea84a;box-shadow:0 4px 18px rgba(94,168,74,0.3)"></div>
+                        </div>
+                        <span class="zone-name">Green Zone</span>
+                        <span class="zone-desc">Ready · Calm · Happy</span>
+                    </button>
+
+                    <button class="zone-btn" data-zone="yellow">
+                        <div class="zone-dot-wrap">
+                            <div class="zone-dot" style="background:#d4a017;box-shadow:0 4px 18px rgba(212,160,23,0.3)"></div>
+                        </div>
+                        <span class="zone-name">Yellow Zone</span>
+                        <span class="zone-desc">Excited · Worried · Silly</span>
+                    </button>
+
+                    <button class="zone-btn" data-zone="red">
+                        <div class="zone-dot-wrap">
+                            <div class="zone-dot" style="background:#d44a3a;box-shadow:0 4px 18px rgba(212,74,58,0.3)"></div>
+                        </div>
+                        <span class="zone-name">Red Zone</span>
+                        <span class="zone-desc">Mad · Frustrated · Scared</span>
+                    </button>
+
+                </div>
+            </div>
+
+            <!-- ── SCREEN 3: Strategy ── -->
+            <div id="strategy-display" class="screen hidden">
+                <div class="zone-pip" id="zonePip"></div>
+                <p class="strategy-eyebrow">Here's something to try</p>
+                <div class="strategy-card">
+                    <h2 id="strategy-title"></h2>
+                    <p id="strategy-description"></p>
+                    <div id="strategy-steps"></div>
+                </div>
+                <div class="action-row">
+                    <button id="try-strategy" class="btn-primary">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                        I'll try this
+                    </button>
+                    <button id="different-strategy" class="btn-ghost">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg>
+                        Something else
+                    </button>
+                </div>
+                <button id="finish-checkin" class="btn-text">All done ✓</button>
+            </div>
+
+            <!-- ── SCREEN 4: Success ── -->
+            <div id="success-message" class="screen hidden">
+                <div class="success-mark">✦</div>
+                <h2>Great job checking in.</h2>
+                <p>Every feeling is okay. You took care of yourself.</p>
+                <button id="new-checkin" class="btn-primary" style="margin-top:8px;">New check-in</button>
+            </div>
+
+        </main>
+
+        <!-- ── BRAIN PANEL ── -->
+        <aside class="brain-panel" id="brainPanel">
+            <div class="brain-inner">
+
+                <div class="brain-top">
+                    <div class="brain-heading">
+                        <span class="live-dot"></span>
+                        Live Brain Activity
+                    </div>
+                    <div class="brain-count">
+                        <span id="brainCount">0</span> check-ins
+                    </div>
+                </div>
+
+                <!-- View toggle -->
+                <div class="brain-toggle">
+                    <button class="brain-toggle-btn active" id="toggleClass" data-view="class">Class</button>
+                    <button class="brain-toggle-btn" id="toggleStudent" data-view="student">Student</button>
+                    <select class="brain-student-select hidden" id="brainStudentSelect">
+                        <option value="">— pick —</option>
+                    </select>
+                </div>
+
+                <p class="brain-desc">
+                    Each strategy has a <strong>weight</strong> per student. 
+                    Strategies they select gain weight; skipped strategies lose it.
+                </p>
+
+                <div id="brainZones" class="brain-zones"></div>
+
+                <div class="brain-log">
+                    <span class="live-dot" style="flex-shrink:0"></span>
+                    <span id="brainLogText">Waiting for check-in…</span>
+                </div>
+
+            </div>
+        </aside>
+
+    </div><!-- end .layout -->
+
+    <script src="strategies.js"></script>
+    <script src="brain.js"></script>
+    <script src="app.js"></script>
+    <script src="present.js"></script>
+</body>
+</html>
