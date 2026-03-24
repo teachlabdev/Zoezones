@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zoe Zones v13 (AI Learning Edition)</title>
+
+  <style>
+    :root {
+      /* --- WARM PALETTE --- */
+      --blue: #64b5f6;   /* Sky Blue */
+      --green: #81c784;  /* Sage */
+      --yellow: #fff176; /* Sunshine */
+      --red: #e57373;    /* Coral */
+      --purple: #ba68c8; /* Orchid */
+
+      /* UI Colors */
+      --bg-color: #fff9f0; /* Warm Cream */
+      --card-color: #ffffff;
+      --text-primary: #4a4a4a;
+      --text-secondary: #787878;
+      --border-color: #f0e6d2;
+    }
+
+    /* --- HIGH CONTRAST MODE --- */
+    body.high-contrast {
+      --bg-color: #000000 !important;
+      --card-color: #000000 !important;
+      --text-primary: #ffffff !important;
+      --text-secondary: #ffff00 !important;
+      --border-color: #ffffff !important;
+      --blue: #00ffff !important;
+      --green: #00ff00 !important;
+      --yellow: #ffff00 !important;
+      --red: #ff0000 !important;
+      --purple: #ff00ff !important;
+    }
+
+    body.high-contrast .app-container { border: 3px solid white; box-shadow: none; }
+    body.high-contrast .modal-content { background-color: #000 !important; border: 2px solid yellow !important; color: yellow !important; }
+    body.high-contrast th, body.high-contrast td { border-bottom: 1px solid white !important; color: white !important; }
+    body.high-contrast .zone-btn { border: 2px solid white; background: #000; }
+    body.high-contrast .zone-btn.selected { background: #333; border-color: yellow; }
+
+    /* --- GRADE LEVEL STYLES --- */
+    body.grade-k2 {
+      font-family: "Comic Sans MS", "Chalkboard SE", sans-serif !important;
+    }
+    body.grade-k2 .zone-btn { border-radius: 50% !important; }
+    body.grade-k2 h1 { font-size: 2em; }
+    body.grade-k2 .action-btn { border-radius: 50px; font-size: 1.6em; }
+
+    /* --- BASE STYLES --- */
+    body {
+      font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-primary);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      box-sizing: border-box;
+      transition: background-color 1s ease;
+    }
+
+    .app-container {
+      max-width: 700px;
+      width: 100%;
+      background-color: var(--card-color);
+      border-radius: 30px;
+      box-shadow: 0 15px 50px rgba(100, 100, 90, 0.1);
+      overflow: hidden;
+      transition: background-color 0.3s ease;
+      position: relative;
+    }
+
+    /* --- HEADER --- */
+    header {
+      padding: 25px 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      align-items: center;
+      border-bottom: 1px solid var(--border-color);
+      background: linear-gradient(90deg, #fffbf5, #f7f3e8);
+    }
+
+    @media (min-width: 600px) {
+      header { flex-direction: row; justify-content: space-between; }
+    }
+
+    body.high-contrast header { background: #000; border-bottom: 2px solid #fff; }
+
+    h1 { margin: 0; font-size: 1.6em; color: var(--text-primary); font-weight: 800; letter-spacing: -0.5px; }
+    body.high-contrast h1 { color: #fff; }
+
+    .access-controls { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+
+    .icon-btn {
+      background: white;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      cursor: pointer;
+      padding: 8px 12px;
+      font-size: 1.1em;
+      transition: all 0.2s;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    .icon-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+    .icon-btn.active { background-color: var(--blue); color: white; border-color: var(--blue); }
+    body.high-contrast .icon-btn { border: 2px solid yellow; color: yellow; background: black; }
+    body.high-contrast .icon-btn.active { background: yellow; color: black; }
+
+    /* --- MAIN CONTENT --- */
+    .main-content { padding: 40px; }
+    .form-group { margin-bottom: 35px; }
+
+    label {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 15px;
+      font-size: 1.3em;
+      color: var(--text-primary);
+    }
+
+    select {
+      width: 100%;
+      padding: 16px;
+      font-size: 1.1em;
+      border-radius: 12px;
+      border: 2px solid var(--border-color);
+      background-color: #fafafa;
+      color: var(--text-primary);
+      cursor: pointer;
+    }
+    select:focus { outline: none; border-color: var(--blue); }
+
+    /* --- ANIMATED ZONES --- */
+    .zone-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 15px;
+    }
+
+    .zone-btn {
+      background: white;
+      border: 3px solid transparent;
+      border-radius: 20px;
+      cursor: pointer;
+      padding: 20px 5px;
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+      min-height: 110px;
+      justify-content: center;
+    }
+
+    .zone-btn:hover { transform: scale(1.05); box-shadow: 0 8px 15px rgba(0,0,0,0.08); }
+
+    .zone-btn.selected {
+      background-color: #fff;
+      border-color: #555;
+      transform: scale(1.05);
+      box-shadow: inset 0 0 15px rgba(0,0,0,0.05);
+    }
+
+    .zone-icon { width: 50px; height: 50px; margin-bottom: 5px; }
+
+    .zone-label {
+      font-size: 0.9em;
+      font-weight: 700;
+      color: var(--text-secondary);
+      text-transform: capitalize;
+    }
+    body.high-contrast .zone-label { color: white; }
+
+    /* EMOJI MODE vs SHAPE MODE */
+    .emoji-icon { display: none; font-size: 3em; line-height: 1; }
+    body.style-classic .zone-icon { display: none; }
+    body.style-classic .emoji-icon { display: block; }
+
+    /* --- ACTION BUTTON --- */
+    .action-btn {
+      width: 100%;
+      padding: 20px;
+      font-size: 1.4em;
+      font-weight: 800;
+      color: white;
+      background: linear-gradient(135deg, #64b5f6, #ba68c8);
+      border: none;
+      border-radius: 16px;
+      cursor: pointer;
+      box-shadow: 0 10px 25px rgba(100, 181, 246, 0.4);
+      transition: transform 0.2s;
+      margin-top: 10px;
+    }
+    .action-btn:hover { transform: translateY(-3px); }
+    .action-btn:active { transform: scale(0.98); }
+
+    body.high-contrast .action-btn {
+      background: black;
+      border: 2px solid yellow;
+      color: yellow;
+      box-shadow: none;
+    }
+
+    /* --- RESULTS AREA --- */
+    #resultContainer {
+      display: none;
+      margin-top: 40px;
+      background-color: #fff;
+      border-radius: 20px;
+      padding: 30px;
+      border: 2px solid var(--border-color);
+      text-align: center;
+      animation: slideUp 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    }
+
+    @keyframes slideUp { from{opacity:0; transform:translateY(30px);} to{opacity:1; transform:translateY(0);} }
+
+    #strategyTitle { font-size: 1.8em; margin: 15px 0; color: var(--text-primary); }
+    body.high-contrast #strategyTitle { color: white; }
+
+    #strategyDesc { font-size: 1.3em; line-height: 1.6; color: var(--text-secondary); margin-bottom: 20px; }
+    body.high-contrast #strategyDesc { color: yellow; }
+
+    /* Feedback Buttons */
+    .feedback-row {
+      display: flex;
+      gap: 15px;
+      margin-top: 25px;
+      justify-content: center;
+    }
+    .feed-btn {
+      padding: 12px 25px;
+      border: none;
+      border-radius: 12px;
+      font-weight: bold;
+      font-size: 1.1em;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .feed-btn:hover { transform: scale(1.05); }
+
+    .btn-yes { background-color: #c8e6c9; color: #2e7d32; }
+    .btn-no { background-color: #ffcdd2; color: #c62828; }
+
+    body.high-contrast .btn-yes { background: black; border: 2px solid white; color: white; }
+    body.high-contrast .btn-no { background: black; border: 2px solid white; color: white; text-decoration: line-through; }
+
+    /* Joke Box */
+    #jokeBox {
+      margin-top: 20px;
+      padding: 15px;
+      background-color: #fffde7;
+      border-radius: 12px;
+      border: 1px solid #fff9c4;
+      display: none;
+      font-style: italic;
+      color: #f57f17;
+      font-size: 1.1em;
+    }
+
+    /* --- SCIENTIFIC BACKGROUND CLASSES --- */
+    body.bg-cooling { background-color: #e3f2fd; }
+    body.bg-warming { background-color: #fff3e0; }
+    body.bg-grounding { background-color: #f1f8e9; }
+    body.bg-fresh { background-color: #fff8e1; }
+    body.bg-calm { background-color: #f3e5f5; }
+
+    /* --- STATS MODAL --- */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.5);
+      backdrop-filter: blur(8px);
+      animation: fadeIn 0.3s ease;
+    }
+
+    .modal-content {
+      background-color: var(--card-color);
+      color: var(--text-primary);
+      margin: 10% auto;
+      padding: 40px;
+      border-radius: 24px;
+      width: 85%;
+      max-width: 600px;
+      box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+      animation: slideUp 0.4s ease-out;
+    }
+
+    .modal-header h2 { margin-top: 0; color: var(--blue); }
+    .modal-close { float: right; font-size: 2em; cursor: pointer; color: #ccc; }
+    .modal-close:hover { color: var(--red); }
+
+    #statsContent table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    #statsContent th { text-align: left; padding: 10px; border-bottom: 2px solid #eee; color: #999; }
+    #statsContent td { padding: 15px 10px; border-bottom: 1px solid #eee; font-size: 1.1em; }
+
+    /* GRADE PICKER STYLES */
+    .grade-picker {
+      padding: 8px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      background: white;
+      color: var(--text-primary);
+      font-size: 1em;
+      cursor: pointer;
+    }
+/* THERAPEUTIC COLOR THERAPY - Applied to result container only for privacy */
+#resultContainer {
+  transition: background 0.8s ease, border-color 0.8s ease;
+}
+
+#resultContainer.therapy-cooling {
+  background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+  border-color: #90caf9;
+}
+
+#resultContainer.therapy-warming {
+  background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+  border-color: #ffb74d;
+}
+
+#resultContainer.therapy-grounding {
+  background: linear-gradient(135deg, #f1f8e9 0%, #dcedc8 100%);
+  border-color: #aed581;
+}
+
+#resultContainer.therapy-fresh {
+  background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+  border-color: #ffd54f;
+}
+
+#resultContainer.therapy-calm {
+  background: linear-gradient(135deg, #f3e5f5 0%, #e1bee7 100%);
+  border-color: #ce93d8;
+}
+
+body.high-contrast #resultContainer.therapy-cooling,
+body.high-contrast #resultContainer.therapy-warming,
+body.high-contrast #resultContainer.therapy-grounding,
+body.high-contrast #resultContainer.therapy-fresh,
+body.high-contrast #resultContainer.therapy-calm {
+  background: #000 !important;
+  border: 2px solid yellow !important;
+}
+
+    /* OPTIONAL: Lock zones until student selected (matches your JS intent) */
+    #zoneSection {
+      opacity: 0.45;
+      pointer-events: none;
+      transition: opacity 0.2s ease;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app-container">
+    <header>
+      <div style="display:flex; align-items:center; gap:10px;">
+        <h1 id="appTitle">Zoe Zones</h1>
+        <select id="gradeSelect" class="grade-picker">
+          <option value="3-5">Gr. 3-5</option>
+          <option value="K-2">Gr. K-2</option>
+        </select>
+      </div>
+
+      <div class="access-controls">
+        <!-- Language Buttons -->
+        <button class="icon-btn active" id="langEn" title="English">🇺🇸</button>
+        <button class="icon-btn" id="langEs" title="Español">🇪🇸</button>
+        <button class="icon-btn" id="langTw" title="Twi (Ghana)">🇬🇭</button>
+        <button class="icon-btn" id="langJp" title="日本語">🇯🇵</button>
+
+        <!-- Tools -->
+        <button class="icon-btn" id="styleBtn" title="Visual Style (Shapes/Emojis)">🎨</button>
+        <button class="icon-btn" id="speechBtn" title="Voice (Mute/Unmute)">🔇</button>
+        <button class="icon-btn" id="musicBtn" title="Calm Audio">🎵</button>
+        <button class="icon-btn" id="contrastBtn" title="High Contrast">👁️</button>
+        <button class="icon-btn" id="statsBtn" title="Stats">📊</button>
+      </div>
+    </header>
+
+    <div class="main-content">
+      <!-- 1. Student Number -->
+      <div class="form-group">
+        <label id="lblWho">1. Select your Student Number</label>
+        <select id="studentSelect"></select>
+      </div>
+
+      <!-- 2. Zone Selection -->
+      <div class="form-group" id="zoneSection">
+        <label id="lblFeel">2. What Zone are you in?</label>
+        <div class="zone-grid">
+          <!-- Green -->
+          <button class="zone-btn" data-zone="green" type="button">
+            <span class="emoji-icon">🟢</span>
+            <svg class="zone-icon" viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="40" fill="#81c784"></circle>
+              <path d="M30 50 L45 65 L70 35" stroke="white" stroke-width="8" fill="none"></path>
+            </svg>
+            <span class="zone-label" id="lblGreen">Green</span>
+          </button>
+
+          <!-- Yellow -->
+          <button class="zone-btn" data-zone="yellow" type="button">
+            <span class="emoji-icon">🟡</span>
+            <svg class="zone-icon" viewBox="0 0 100 100">
+              <path d="M50 10 L90 80 L10 80 Z" fill="#fff176"></path>
+              <rect x="45" y="30" width="10" height="30" fill="#f9a825"></rect>
+              <circle cx="50" cy="70" r="5" fill="#f9a825"></circle>
+            </svg>
+            <span class="zone-label" id="lblYellow">Yellow</span>
+          </button>
+
+          <!-- Purple -->
+          <button class="zone-btn" data-zone="purple" type="button">
+            <span class="emoji-icon">🟣</span>
+            <svg class="zone-icon" viewBox="0 0 100 100">
+              <polygon points="50,10 61,35 88,35 66,50 75,75 50,60 25,75 34,50 12,35 39,35" fill="#ba68c8"></polygon>
+              <text x="50" y="65" font-size="40" text-anchor="middle" fill="white">!</text>
+            </svg>
+            <span class="zone-label" id="lblPurple">Purple</span>
+          </button>
+
+          <!-- Blue -->
+          <button class="zone-btn" data-zone="blue" type="button">
+            <span class="emoji-icon">🔵</span>
+            <svg class="zone-icon" viewBox="0 0 100 100">
+              <path d="M25,60 Q20,40 40,40 Q50,20 70,40 Q90,40 85,60 Z" fill="#64b5f6"></path>
+            </svg>
+            <span class="zone-label" id="lblBlue">Blue</span>
+          </button>
+
+          <!-- Red -->
+          <button class="zone-btn" data-zone="red" type="button">
+            <span class="emoji-icon">🔴</span>
+            <svg class="zone-icon" viewBox="0 0 100 100">
+              <rect x="15" y="15" width="70" height="70" rx="10" fill="#e57373"></rect>
+              <rect x="25" y="40" width="50" height="20" fill="white"></rect>
+            </svg>
+            <span class="zone-label" id="lblRed">Red</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 3. Class Selection -->
+      <div class="form-group" id="classSection">
+        <label id="lblClass">3. What is next?</label>
+        <select id="periodSelect"></select>
+      </div>
+
+      <button class="action-btn" id="goBtn" type="button">✨ Ask Zoe</button>
+
+      <!-- RESULT AREA -->
+      <div id="resultContainer">
+        <div id="jokeBox">
+          <span id="jokeText"></span>
+        </div>
+
+        <h2 id="strategyTitle">Strategy Name</h2>
+        <p id="strategyDesc">Description goes here.</p>
+        <small id="aiStats" style="color:#bbb;">(AI Confidence: 0%)</small>
+
+        <div class="feedback-row">
+          <button class="feed-btn btn-yes" id="yesBtn" type="button">👍 It helped</button>
+          <button class="feed-btn btn-no" id="noBtn" type="button">👎 Try another</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATS MODAL -->
+  <div id="statsModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Zoe's Learning Memory</h2>
+        <span class="modal-close">&times;</span>
+      </div>
+      <div id="statsContent"><p>Loading...</p></div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // --- 1. GET DOM ELEMENTS ---
+      const body = document.body;
+      const langEn = document.getElementById('langEn');
+      const langEs = document.getElementById('langEs');
+      const langJp = document.getElementById('langJp');
+      const langTw = document.getElementById('langTw');
+      const musicBtn = document.getElementById('musicBtn');
+      const speechBtn = document.getElementById('speechBtn');
+      const contrastBtn = document.getElementById('contrastBtn');
+      const styleBtn = document.getElementById('styleBtn');
+      const statsBtn = document.getElementById('statsBtn');
+      const gradeSelect = document.getElementById('gradeSelect');
+
+      const zoneBtns = document.querySelectorAll('.zone-btn');
+      const goBtn = document.getElementById('goBtn');
+      const studentSelect = document.getElementById('studentSelect');
+      const periodSelect = document.getElementById('periodSelect');
+      const resultContainer = document.getElementById('resultContainer');
+      const statsModal = document.getElementById('statsModal');
+      const statsContent = document.getElementById('statsContent');
+      const modalClose = document.querySelector('.modal-close');
+      const yesBtn = document.getElementById('yesBtn');
+      const noBtn = document.getElementById('noBtn');
+      const jokeBox = document.getElementById('jokeBox');
+      const jokeText = document.getElementById('jokeText');
+      const strategyTitle = document.getElementById('strategyTitle');
+      const strategyDesc = document.getElementById('strategyDesc');
+      const aiStats = document.getElementById('aiStats');
+
+      // Labels to translate
+      const appTitle = document.getElementById('appTitle');
+      const lblWho = document.getElementById('lblWho');
+      const lblFeel = document.getElementById('lblFeel');
+      const lblClass = document.getElementById('lblClass');
+      const lblGreen = document.getElementById('lblGreen');
+      const lblYellow = document.getElementById('lblYellow');
+      const lblRed = document.getElementById('lblRed');
+      const lblBlue = document.getElementById('lblBlue');
+      const lblPurple = document.getElementById('lblPurple');
+
+      const zoneSection = document.getElementById('zoneSection');
+      const classSection = document.getElementById('classSection');
+
+      // --- GLOBAL VARIABLES ---
+      let currentLang = 'en';
+      let selectedZone = null;
+      let currentStrategy = null;
+      let excludedStrategies = [];
+      let audioContext = null;
+      let noiseSrc = null;      // (fixed) keep reference
+      let isPlaying = false;
+      let isSpeechEnabled = false;
+      let visualStyle = 'modern';
+
+      // --- TRANSLATION DATA ---
+      const i18n = {
+        en: {
+          title: "Zoe Zones",
+          lblWho: "1. Select your Student Number",
+          lblFeel: "2. What Zone are you in?",
+          lblClass: "3. What is next?",
+          btnAsk: "✨ Ask Zoe",
+          btnYes: "👍 I'll try it",
+          btnNo: "👎 Try another",
+          jokePrompt: "Zoe says: Need a smile first?",
+          greenBtnYes: "🚀 Keep it up!",
+          greenBtnNo: "👎 Need something else",
+          selectNamePlaceholder: "Select Number...",
+          lblGreen: "Green", lblYellow: "Yellow", lblRed: "Red", lblBlue: "Blue", lblPurple: "Purple",
+          subjects: {
+            math: "Math",
+            science: "Science",
+            socialstudies: "Social Studies",
+            literacy: "Literacy",
+            writing: "Writing",
+            specials: "Specials (Art/Music/PE)"
+          }
+        },
+        es: {
+          title: "Zonas de Zoe",
+          lblWho: "1. Selecciona tu número",
+          lblFeel: "2. ¿En qué zona estás?",
+          lblClass: "3. ¿Qué sigue?",
+          btnAsk: "✨ Pregúntale a Zoe",
+          btnYes: "👍 Lo intentaré",
+          btnNo: "👎 Prueba otro",
+          jokePrompt: "Zoe dice: ¿Necesitas una sonrisa?",
+          greenBtnYes: "🚀 ¡Sigue así!",
+          greenBtnNo: "👎 Necesito otra cosa",
+          selectNamePlaceholder: "Seleccionar número...",
+          lblGreen: "Verde", lblYellow: "Amarillo", lblRed: "Rojo", lblBlue: "Azul", lblPurple: "Morado",
+          subjects: {
+            math: "Matemáticas",
+            science: "Ciencias",
+            socialstudies: "Estudios Sociales",
+            literacy: "Alfabetización",
+            writing: "Escritura",
+            specials: "Especiales (Arte/Música)"
+          }
+        },
+        jp: {
+          title: "ゾーイ・ゾーン",
+          lblWho: "1. ばんごうをえらんでください",
+          lblFeel: "2. どのゾーンにいますか？",
+          lblClass: "3. つぎのじゅぎょうは？",
+          btnAsk: "✨ ゾーイにきく",
+          btnYes: "👍 やってみる",
+          btnNo: "👎 べつのにする",
+          jokePrompt: "ゾーイ：ジョークをきく？",
+          greenBtnYes: "🚀 そのちょうし！",
+          greenBtnNo: "👎 ほかのがいい",
+          selectNamePlaceholder: "ばんごうをせんたく...",
+          lblGreen: "みどり", lblYellow: "きいろ", lblRed: "あか", lblBlue: "あお", lblPurple: "むらさき",
+          subjects: {
+            math: "さんすう",
+            science: "りか",
+            socialstudies: "しゃかい",
+            literacy: "こくご (よむ)",
+            writing: "こくご (かく)",
+            specials: "ずこう / おんがく / たいいく"
+          }
+        },
+        tw: {
+          title: "Zoe Zones (Twi)",
+          lblWho: "1. Yi wo nɔma",
+          lblFeel: "2. Ɛte sɛn?",
+          lblClass: "3. Adɛn na ɛreba?",
+          btnAsk: "✨ Bisa Zoe",
+          btnYes: "👍 Ɛyɛ",
+          btnNo: "👎 Sɔ foforɔ hwɛ",
+          jokePrompt: "Zoe se: Wopɛ sɛ wosere?",
+          greenBtnYes: "🚀 Kɔ so!",
+          greenBtnNo: "👎 Me hia biribi foforɔ",
+          selectNamePlaceholder: "Yi Nɔma...",
+          lblGreen: "Ahban", lblYellow: "Akokɔsrade", lblRed: "Kɔkɔɔ", lblBlue: "Bibire", lblPurple: "Pɛpɔ",
+          subjects: {
+            math: "Akontabu",
+            science: "Abɔdeɛ",
+            socialstudies: "Asetena",
+            literacy: "Akenkan",
+            writing: "Atwerɛ",
+            specials: "Adwinni/Nnwom"
+          }
+        }
+      };
+
+      // --- STRATEGY DATA ---
+      // (fixed) removed the extra brace in "red" and added a safe top-level default.
+      const strategies = {
+        default: [
+          { id: "pause", en_name: "Pause", en_desc: "Take one slow breath.", tw_name: "Gyae Kakra", tw_desc: "Fa home a ɛyɛ brɛoo baako.", jp_name: "いちどとまる", jp_desc: "ゆっくり1かい、いきをしよう。" }
+        ],
+        yellow: {
+          academic: [
+            { id: "doodle", en_name: "Guided Doodle", en_desc: "Draw a spiral for 1 minute.", tw_name: "Nshohwɛ", tw_desc: "Twerɛ spiral simma baako.", jp_name: "おえかき", jp_desc: "1ぷんかん、うずまきをかいてみよう。" },
+            { id: "wallpush", en_name: "Wall Pushes", en_desc: "Push the wall hard for 10s.", tw_name: "Pia Fasuo", tw_desc: "Pia fasuo no denneenen.", jp_name: "かべおし", jp_desc: "10びょうかん、かべをおしてみよう。" },
+            { id: "squeeze", en_name: "Hand Squeeze", en_desc: "Squeeze hands together.", tw_name: "Mia Wo Nsa", tw_desc: "Mia wo nsa boom.", jp_name: "てをギュッ", jp_desc: "てをギュッとにぎろう。" }
+          ],
+          specials: [
+            { id: "lineleader", en_name: "Helper Role", en_desc: "Ask to help set up.", tw_name: "Boafoɔ", tw_desc: "Bisa sɛ wobɛboa.", jp_name: "おてつだい", jp_desc: "おてつだいできるかきいてみよう。" }
+          ]
+        },
+        red: {
+          academic: [
+            { id: "breath", en_name: "Square Breathing", en_desc: "In 4, Hold 4, Out 4.", tw_name: "Home", tw_desc: "Home kɔ mu, sie, home pue.", jp_name: "しかくこきゅう", jp_desc: "4びょうすって、とめて、はく。" },
+            { id: "drink", en_name: "Cold Water", en_desc: "Drink water slowly.", tw_name: "Nsuo Nwunu", tw_desc: "Nom nsuo.", jp_name: "おみず", jp_desc: "おみずをゆっくりのもう。" }
+          ],
+          specials: [
+            { id: "walk", en_name: "Take a Walk", en_desc: "Walk to the water fountain.", tw_name: "Nante", tw_desc: "Nante kɔ nsuo no ho.", jp_name: "さんぽ", jp_desc: "みずのみばまであるこう。" }
+          ]
+        },
+        blue: {
+          academic: [
+            { id: "stretch", en_name: "Chair Stretch", en_desc: "Reach for the sky!", tw_name: "Teeta Wo Mu", tw_desc: "Ma wo nsa so!", jp_name: "ストレッチ", jp_desc: "てをうえにのばそう。" },
+            { id: "stand", en_name: "Stand Up", en_desc: "Stand while working.", tw_name: "Sɔre Gyina", tw_desc: "Gyina hɔ yɛ adwuma.", jp_name: "たつ", jp_desc: "たってべんきょうしよう。" }
+          ],
+          specials: [
+            { id: "talk", en_name: "Talk to a Friend", en_desc: "Tell a friend something nice.", tw_name: "Kasa Kyerɛ Adamfo", tw_desc: "Ka asɛm dɛdɛ kyerɛ wo yɔnko.", jp_name: "おはなし", jp_desc: "ともだちとおはなししよう。" }
+          ]
+        },
+        green: {
+          default: [
+            { id: "goal", en_name: "Set a Goal", en_desc: "What will you learn today?", tw_name: "Botaeɛ", tw_desc: "Ɛdeɛn na wobɛsua ɛnnɛ?", jp_name: "もくひょう", jp_desc: "きょうのめあてをきめよう。" },
+            { id: "help", en_name: "Be a Helper", en_desc: "Help a friend.", tw_name: "Yɛ Boafoɔ", tw_desc: "Boa wo yɔnko.", jp_name: "おてつだい", jp_desc: "ともだちをたすけよう。" }
+          ]
+        },
+        purple: {
+          default: [
+            { id: "counselor", en_name: "Counselor Notified", en_desc: "Stay there. Help is coming.", tw_name: "Mpanimfoɔ", tw_desc: "Tena hɔ. Boafoɔ reba.", jp_name: "カウンセラー", jp_desc: "すぐにたすけにいきます。" }
+          ]
+        }
+      };
+
+      // --- INIT ---
+      initStudentDropdown();
+      updateLanguage();
+      applyBodyModeClasses(); // ensure grade/style reflected on load
+      lockOrUnlockZones();    // ensure initial lock state matches selection
+
+      // --- EVENT LISTENERS ---
+      langEn.addEventListener('click', () => setLang('en'));
+      langEs.addEventListener('click', () => setLang('es'));
+      langJp.addEventListener('click', () => setLang('jp'));
+      langTw.addEventListener('click', () => setLang('tw'));
+
+      contrastBtn.addEventListener('click', () => {
+        document.body.classList.toggle('high-contrast');
+        // If high contrast is turned OFF, re-apply our normal classes
+        if (!document.body.classList.contains('high-contrast')) {
+          applyBodyModeClasses();
+          applyZoneBackground(selectedZone);
+        }
+      });
+
+      musicBtn.addEventListener('click', toggleMusic);
+      speechBtn.addEventListener('click', toggleSpeech);
+      styleBtn.addEventListener('click', toggleStyle);
+      gradeSelect.addEventListener('change', toggleGrade);
+
+      zoneBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          if (!studentSelect.value) return; // safety guard if locked
+
+          zoneBtns.forEach(b => b.classList.remove('selected'));
+          btn.classList.add('selected');
+          selectedZone = btn.dataset.zone;
+
+          if (!document.body.classList.contains('high-contrast')) {
+            // (fixed) do not wipe ALL classes. Manage only our own.
+            applyBodyModeClasses();
+            applyZoneBackground(selectedZone);
+          }
+
+          excludedStrategies = [];
+          resultContainer.style.display = "none";
+          window.speechSynthesis.cancel();
+        });
+      });
+
+      goBtn.addEventListener('click', generateRecommendation);
+      yesBtn.addEventListener('click', () => { saveFeedback('success'); resetApp(); });
+      noBtn.addEventListener('click', () => {
+        saveFeedback('fail');
+        if (currentStrategy && currentStrategy.id) excludedStrategies.push(currentStrategy.id);
+        generateRecommendation();
+      });
+
+      statsBtn.addEventListener('click', showStats);
+      modalClose.addEventListener('click', () => statsModal.style.display = 'none');
+      window.addEventListener('click', (e) => { if (e.target === statsModal) statsModal.style.display = 'none'; });
+
+      // Interaction handling
+      studentSelect.addEventListener('change', () => {
+        lockOrUnlockZones();
+      });
+
+      // --- FUNCTIONS ---
+
+      function lockOrUnlockZones() {
+        const hasStudent = !!studentSelect.value;
+        zoneSection.style.opacity = hasStudent ? "1" : "0.45";
+        zoneSection.style.pointerEvents = hasStudent ? "auto" : "none";
+      }
+
+      function setLang(lang) {
+        currentLang = lang;
+        [langEn, langEs, langJp, langTw].forEach(btn => btn.classList.remove('active'));
+        if (lang === 'en') langEn.classList.add('active');
+        if (lang === 'es') langEs.classList.add('active');
+        if (lang === 'jp') langJp.classList.add('active');
+        if (lang === 'tw') langTw.classList.add('active');
+        updateLanguage();
+      }
+
+      function toggleStyle() {
+        visualStyle = visualStyle === 'modern' ? 'classic' : 'modern';
+        styleBtn.textContent = visualStyle === 'modern' ? '🎨' : '😀';
+
+        if (!document.body.classList.contains('high-contrast')) {
+          applyBodyModeClasses();
+          applyZoneBackground(selectedZone);
+        } else {
+          // still allow style-classic toggle while in high contrast
+          document.body.classList.toggle('style-classic');
+        }
+      }
+
+      function toggleGrade() {
+        if (!document.body.classList.contains('high-contrast')) {
+          applyBodyModeClasses();
+          applyZoneBackground(selectedZone);
+        } else {
+          // still allow grade-k2 toggle while in high contrast
+          if (gradeSelect.value === 'K-2') document.body.classList.add('grade-k2');
+          else document.body.classList.remove('grade-k2');
+        }
+      }
+
+      function applyBodyModeClasses() {
+        // Remove only the classes we control (don’t nuke the world)
+        const toRemove = [
+          'grade-k2', 'style-classic',
+          'bg-cooling', 'bg-warming', 'bg-grounding', 'bg-fresh', 'bg-calm'
+        ];
+        toRemove.forEach(c => document.body.classList.remove(c));
+
+        if (gradeSelect.value === 'K-2') document.body.classList.add('grade-k2');
+        if (visualStyle === 'classic') document.body.classList.add('style-classic');
+      }
+
+      function applyZoneBackground(zone) {
+        // Clear background classes first
+        ['bg-cooling', 'bg-warming', 'bg-grounding', 'bg-fresh', 'bg-calm']
+          .forEach(c => document.body.classList.remove(c));
+
+        if (!zone) return;
+        if (zone === 'red') document.body.classList.add('bg-cooling');
+        if (zone === 'blue') document.body.classList.add('bg-warming');
+        if (zone === 'yellow') document.body.classList.add('bg-grounding');
+        if (zone === 'green') document.body.classList.add('bg-fresh');
+        if (zone === 'purple') document.body.classList.add('bg-calm');
+      }
+
+      function initStudentDropdown() {
+        const prev = studentSelect.value;
+        studentSelect.innerHTML = "";
+
+        let defaultOpt = document.createElement("option");
+        defaultOpt.value = "";
+        defaultOpt.text = i18n[currentLang].selectNamePlaceholder;
+        studentSelect.add(defaultOpt);
+
+        for (let i = 1; i <= 27; i++) {
+          let opt = document.createElement("option");
+          opt.value = String(i);
+          opt.text = String(i);
+          studentSelect.add(opt);
+        }
+
+        // restore selection if possible
+        if (prev) studentSelect.value = prev;
+      }
+
+      function updateLanguage() {
+        const t = i18n[currentLang];
+        appTitle.textContent = t.title;
+        lblWho.textContent = t.lblWho;
+        lblFeel.textContent = t.lblFeel;
+        lblClass.textContent = t.lblClass;
+        goBtn.textContent = t.btnAsk;
+
+        lblGreen.textContent = t.lblGreen;
+        lblYellow.textContent = t.lblYellow;
+        lblRed.textContent = t.lblRed;
+        lblBlue.textContent = t.lblBlue;
+        lblPurple.textContent = t.lblPurple;
+
+        // rebuild student dropdown so placeholder is always correct
+        initStudentDropdown();
+        lockOrUnlockZones();
+
+        const currentVal = periodSelect.value;
+        periodSelect.innerHTML = "";
+        for (const [key, value] of Object.entries(t.subjects)) {
+          let opt = document.createElement("option");
+          opt.value = key;
+          opt.text = value;
+          periodSelect.add(opt);
+        }
+        if (currentVal) periodSelect.value = currentVal;
+
+        if (currentStrategy) {
+          strategyTitle.textContent = currentStrategy[`${currentLang}_name`] || currentStrategy.en_name;
+          strategyDesc.textContent = currentStrategy[`${currentLang}_desc`] || currentStrategy.en_desc;
+        }
+
+        // Buttons text (optional; your UI uses different labels in HTML)
+        yesBtn.textContent = t.btnYes;
+        noBtn.textContent = t.btnNo;
+      }
+
+      // ============================================
+      // AI LEARNING ENGINE — Per-Student Weighted
+      // Random Selection (v2, upgraded from v16)
+      // ============================================
+
+      // --- Data helpers ---
+
+      function _loadBrain() {
+        try {
+          const saved = localStorage.getItem('zoeZonesData_v2');
+          if (saved) {
+            const parsed = JSON.parse(saved);
+            if (parsed && parsed.students) return parsed;
+          }
+        } catch(e) {}
+        return { students: {}, lastUpdated: new Date().toISOString() };
+      }
+
+      function _saveBrain(data) {
+        try {
+          data.lastUpdated = new Date().toISOString();
+          localStorage.setItem('zoeZonesData_v2', JSON.stringify(data));
+        } catch(e) { console.warn('Zoe: could not save brain data.', e); }
+      }
+
+      function _getStudentRecord(data, studentNum) {
+        const key = String(studentNum);
+        if (!data.students[key]) {
+          data.students[key] = { totalCheckIns: 0, strategies: {} };
+        }
+        return data.students[key];
+      }
+
+      function _getStratStat(studentRecord, strategyId) {
+        if (!studentRecord.strategies[strategyId]) {
+          studentRecord.strategies[strategyId] = { shown: 0, selected: 0, skipped: 0 };
+        }
+        return studentRecord.strategies[strategyId];
+      }
+
+      // --- Weight calculation ---
+      // Scale: 0.2 (never helpful) → 3.0 (always helpful)
+      // Exploration bonus: strategies shown < 3 times get 1.5x boost
+
+      function _calcWeight(stat) {
+        let weight = 1;
+        const interactions = stat.selected + stat.skipped;
+        if (stat.shown > 0 && interactions > 0) {
+          const successRate = stat.selected / interactions;
+          weight = 0.2 + (successRate * 2.8);
+        }
+        if (stat.shown < 3) weight *= 1.5;
+        return weight;
+      }
+
+      // Weighted random selection from a pool
+      function _weightedPick(pool, studentRecord) {
+        const weights = pool.map(s => _calcWeight(_getStratStat(studentRecord, s.id)));
+        const total = weights.reduce((sum, w) => sum + w, 0);
+        let rand = Math.random() * total;
+        for (let i = 0; i < pool.length; i++) {
+          rand -= weights[i];
+          if (rand <= 0) return pool[i];
+        }
+        return pool[0];
+      }
+
+      // Confidence display: highest weight as % of max possible (3.0)
+      function _getConfidence(stat) {
+        const interactions = stat.selected + stat.skipped;
+        if (interactions === 0) return 50;
+        const successRate = stat.selected / interactions;
+        const confidence = Math.min(interactions / 10, 1);
+        return Math.round(successRate * confidence * 100);
+      }
+
+      // --- Core functions ---
+
+      function generateRecommendation() {
+        if (!studentSelect.value) return;
+        if (!selectedZone) return;
+
+        const period = periodSelect.value;
+        const category = (period === 'specials') ? 'specials' : 'academic';
+
+        // Build pool same way v16 did — respect category and fallbacks
+        let pool =
+          (strategies[selectedZone] && strategies[selectedZone][category]) ||
+          (strategies[selectedZone] && strategies[selectedZone].default) ||
+          strategies.default ||
+          [];
+
+        if (selectedZone === 'green')  pool = strategies.green.default;
+        if (selectedZone === 'purple') pool = strategies.purple.default;
+
+        // Filter excluded (shown this session and skipped)
+        let available = pool.filter(s => !excludedStrategies.includes(s.id));
+        if (available.length === 0) available = pool;
+
+        // Load this student's brain data
+        const data = _loadBrain();
+        const studentRecord = _getStudentRecord(data, studentSelect.value);
+
+        // Weighted random pick
+        currentStrategy = _weightedPick(available, studentRecord);
+        if (!currentStrategy) return;
+
+        // Record shown
+        const stat = _getStratStat(studentRecord, currentStrategy.id);
+        stat.shown++;
+        _saveBrain(data);
+
+        // Confidence display
+        const confidence = _getConfidence(stat);
+
+        resultContainer.style.display = 'block';
+        updateLanguage();
+        aiStats.textContent = `(AI Confidence: ${confidence}%)`;
+
+        // Color opposition therapy
+        resultContainer.className = '';
+        if (selectedZone === 'red')    resultContainer.classList.add('therapy-cooling');
+        if (selectedZone === 'blue')   resultContainer.classList.add('therapy-warming');
+        if (selectedZone === 'yellow') resultContainer.classList.add('therapy-grounding');
+        if (selectedZone === 'green')  resultContainer.classList.add('therapy-fresh');
+        if (selectedZone === 'purple') resultContainer.classList.add('therapy-calm');
+
+        if (isSpeechEnabled) {
+          const title = currentStrategy[`${currentLang}_name`] || currentStrategy.en_name;
+          const desc  = currentStrategy[`${currentLang}_desc`]  || currentStrategy.en_desc;
+          speakText(`${title}. ${desc}`);
+        }
+      }
+
+      function saveFeedback(outcome) {
+        if (!currentStrategy || !studentSelect.value) return;
+
+        const data = _loadBrain();
+        const studentRecord = _getStudentRecord(data, studentSelect.value);
+        const stat = _getStratStat(studentRecord, currentStrategy.id);
+
+        if (outcome === 'success') {
+          stat.selected++;
+        } else {
+          stat.skipped++;
+          // Add to excluded so we don't show it again this session
+          if (!excludedStrategies.includes(currentStrategy.id)) {
+            excludedStrategies.push(currentStrategy.id);
+          }
+        }
+
+        studentRecord.totalCheckIns = (studentRecord.totalCheckIns || 0) + (outcome === 'success' ? 1 : 0);
+        _saveBrain(data);
+      }
+
+      function resetApp() {
+        resultContainer.style.display = 'none';
+        selectedZone = null;
+        currentStrategy = null;
+        excludedStrategies = [];
+        zoneBtns.forEach(b => b.classList.remove('selected'));
+
+        if (!document.body.classList.contains('high-contrast')) {
+          applyBodyModeClasses();
+        }
+        applyZoneBackground(null);
+
+        window.speechSynthesis.cancel();
+      }
+
+      // --- AUDIO ENGINE (Brown Noise) ---
+      function toggleMusic() {
+        if (isPlaying) {
+          if (audioContext) audioContext.suspend();
+          isPlaying = false;
+          musicBtn.classList.remove('active');
+          return;
+        }
+
+        if (!audioContext) {
+          try {
+            const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+            audioContext = new AudioContextClass();
+
+            const bufferSize = audioContext.sampleRate * 2;
+            const buffer = audioContext.createBuffer(1, bufferSize, audioContext.sampleRate);
+            const data = buffer.getChannelData(0);
+
+            let lastOut = 0;
+            for (let i = 0; i < bufferSize; i++) {
+              const white = Math.random() * 2 - 1;
+              const brown = (lastOut + (0.02 * white)) / 1.02;
+              data[i] = brown * 3.5;
+              lastOut = brown;
+            }
+
+            noiseSrc = audioContext.createBufferSource();
+            noiseSrc.buffer = buffer;
+            noiseSrc.loop = true;
+
+            const gainNode = audioContext.createGain();
+            gainNode.gain.value = 0.20;
+
+            const lowPass = audioContext.createBiquadFilter();
+            lowPass.type = 'lowpass';
+            lowPass.frequency.value = 350;
+
+            noiseSrc.connect(lowPass);
+            lowPass.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+
+            noiseSrc.start();
+          } catch (e) {
+            console.log("Audio issue: " + e);
+          }
+        }
+
+        if (audioContext && audioContext.state === 'suspended') {
+          audioContext.resume();
+        }
+
+        isPlaying = true;
+        musicBtn.classList.add('active');
+      }
+
+      // --- SPEECH SYNTHESIS ENGINE ---
+      function toggleSpeech() {
+        isSpeechEnabled = !isSpeechEnabled;
+        if (isSpeechEnabled) {
+          speechBtn.textContent = "🔊";
+          speechBtn.classList.add('active');
+          speakText(i18n[currentLang].btnAsk);
+        } else {
+          speechBtn.textContent = "🔇";
+          speechBtn.classList.remove('active');
+          window.speechSynthesis.cancel();
+        }
+      }
+
+      function speakText(text) {
+        if (!isSpeechEnabled) return;
+
+        window.speechSynthesis.cancel();
+
+        const utterance = new SpeechSynthesisUtterance(text);
+
+        if (currentLang === 'en') utterance.lang = 'en-US';
+        if (currentLang === 'es') utterance.lang = 'es-ES';
+        if (currentLang === 'jp') utterance.lang = 'ja-JP';
+        // Note: Twi voices vary; leaving as default avoids hard failure.
+
+        const voices = window.speechSynthesis.getVoices();
+        // Less brittle: prefer matching language first; don’t rely on “Female” in the name.
+        const preferredVoice = voices.find(v => v.lang && utterance.lang && v.lang.startsWith(utterance.lang.slice(0,2)));
+        if (preferredVoice) utterance.voice = preferredVoice;
+
+        window.speechSynthesis.speak(utterance);
+      }
+
+      function showStats() {
+        const data = _loadBrain();
+
+        // Aggregate across all students
+        const aggregate = {};
+        let totalCheckIns = 0;
+        let activeStudents = 0;
+
+        Object.keys(data.students).forEach(num => {
+          const student = data.students[num];
+          if (student.totalCheckIns > 0) activeStudents++;
+          totalCheckIns += (student.totalCheckIns || 0);
+
+          Object.keys(student.strategies || {}).forEach(id => {
+            const s = student.strategies[id];
+            if (!aggregate[id]) aggregate[id] = { selected: 0, skipped: 0, shown: 0 };
+            aggregate[id].selected += s.selected || 0;
+            aggregate[id].skipped  += s.skipped  || 0;
+            aggregate[id].shown    += s.shown    || 0;
+          });
+        });
+
+        // Build per-student view if a student is selected
+        const currentStudentNum = studentSelect.value;
+        const studentRecord = currentStudentNum
+          ? _getStudentRecord(data, currentStudentNum)
+          : null;
+
+        let html = `
+          <p style="margin-bottom:16px;color:#888;font-size:0.95em;">
+            <strong>${totalCheckIns}</strong> total check-ins &nbsp;·&nbsp;
+            <strong>${activeStudents}</strong> active students
+          </p>`;
+
+        // If a student is selected, show their individual stats first
+        if (studentRecord && currentStudentNum) {
+          const studentStrategies = studentRecord.strategies || {};
+          const hasData = Object.values(studentStrategies).some(s => s.shown > 0);
+
+          html += `<h3 style="margin-bottom:10px;font-size:1em;color:#555;">Student ${currentStudentNum}</h3>`;
+          html += `<table><tr><th>Strategy</th><th>Success Rate</th><th>Times Tried</th></tr>`;
+
+          if (!hasData) {
+            html += `<tr><td colspan='3'>No check-ins yet for Student ${currentStudentNum}.</td></tr>`;
+          } else {
+            const rows = Object.entries(studentStrategies)
+              .filter(([, s]) => s.shown > 0)
+              .map(([id, s]) => {
+                const total = s.selected + s.skipped;
+                const rate  = total > 0 ? Math.round((s.selected / total) * 100) : 0;
+                return { id, rate, total: s.shown };
+              })
+              .sort((a, b) => b.rate - a.rate);
+
+            rows.forEach(({ id, rate, total }) => {
+              html += `<tr><td>${id}</td><td>${rate}%</td><td>${total}</td></tr>`;
+            });
+          }
+          html += `</table><hr style="margin:20px 0;border-color:#eee;">`;
+        }
+
+        // Class-wide aggregate
+        html += `<h3 style="margin-bottom:10px;font-size:1em;color:#555;">Whole Class</h3>`;
+        html += `<table><tr><th>Strategy</th><th>Success Rate</th><th>Times Tried</th></tr>`;
+
+        const hasClassData = Object.values(aggregate).some(s => s.shown > 0);
+        if (!hasClassData) {
+          html += `<tr><td colspan='3'>No data yet. Zoe is ready to learn!</td></tr>`;
+        } else {
+          const rows = Object.entries(aggregate)
+            .filter(([, s]) => s.shown > 0)
+            .map(([id, s]) => {
+              const total = s.selected + s.skipped;
+              const rate  = total > 0 ? Math.round((s.selected / total) * 100) : 0;
+              return { id, rate, shown: s.shown };
+            })
+            .sort((a, b) => b.rate - a.rate);
+
+          rows.forEach(({ id, rate, shown }) => {
+            html += `<tr><td>${id}</td><td>${rate}%</td><td>${shown}</td></tr>`;
+          });
+        }
+
+        html += `</table>`;
+        statsContent.innerHTML = html;
+        statsModal.style.display = "block";
+      }
+    });
+  </script>
+</body>
+</html>
+
+
